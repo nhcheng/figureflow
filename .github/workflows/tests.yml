@@ -12,10 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { python: "3.10", os: "ubuntu-latest", session: "tests" }
           - { python: "3.9", os: "ubuntu-latest", session: "tests" }
-          - { python: "3.10", os: "macos-latest", session: "tests" }
-          - { python: "3.9", os: "macos-latest", session: "tests" }
+            # - { python: "3.9", os: "macos-latest", session: "tests" }
 
     env:
       NOXSESSION: ${{ matrix.session }}
@@ -23,6 +21,11 @@ jobs:
       PRE_COMMIT_COLOR: "always"
 
     steps:
+      - name: Install X Virtual Frame Buffer
+        run: sudo apt-get install -y python3-tk xvfb libxcb-xinerama0
+      - name: Reinstall qt5
+        run: sudo apt-get --reinstall install libqt5dbus5 libqt5widgets5 libqt5network5 libqt5gui5 libqt5core5a
+
       - name: Check out the repository
         uses: actions/checkout@v3
 
@@ -42,6 +45,8 @@ jobs:
           import pip
           with open(os.environ["GITHUB_ENV"], mode="a") as io:
               print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
+      - name: Install ipykernel
+        run: pip install ipykernel
       - name: Install Poetry
         run: |
           pipx install --pip-args=--constraint=.github/workflows/constraints.txt poetry
